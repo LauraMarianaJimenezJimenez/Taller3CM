@@ -6,6 +6,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -23,9 +24,6 @@ import java.io.InputStream;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    static final int IMAGE_PICKER_REQUEST = 1;
-    static final int REQUEST_IMAGE_CAPTURE = 2;
-    static final int MY_PERMISSION_REQUEST_READ_STORAGE = 0;
 
     Button btnGaleria, btnCamara;
     ImageView imgFoto;
@@ -56,43 +54,49 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
-    private void takePicture() {
-        ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.CAMERA},REQUEST_IMAGE_CAPTURE);
+    private void addPhoto()
+    {
+        PermissionsManager.requestPermission((Activity) this, Manifest.permission.CAMERA,
+                "Para poder mostrar fotos tomadas desde su cámara", PermissionsManager.CAMERA_PERMISSION );
         if (ContextCompat.checkSelfPermission(getBaseContext() , Manifest.permission.CAMERA)== PackageManager.PERMISSION_GRANTED)
         {
             Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            if (takePictureIntent.resolveActivity(this.getPackageManager()) != null) {
+                startActivityForResult(takePictureIntent, PermissionsManager.REQUEST_IMAGE_CAPTURE);
             }
         }
 
+
     }
 
-    private void addPhoto() {
-        ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},IMAGE_PICKER_REQUEST);
-        if (ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+    private void takePicture()
+    {
+        PermissionsManager.requestPermission((Activity)this, Manifest.permission.READ_EXTERNAL_STORAGE,
+                "Para poder mostrar fotos que ya tenga guardadas", PermissionsManager.READ_STORAGE_PERMISSION);
+        if(ContextCompat.checkSelfPermission((Activity)this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
+        {
             Intent pickImage = new Intent(Intent.ACTION_PICK);
             pickImage.setType("image/*");
-            startActivityForResult(pickImage, IMAGE_PICKER_REQUEST);
+            startActivityForResult(pickImage, PermissionsManager.IMAGE_PICKER_REQUEST);
         }
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
-            case IMAGE_PICKER_REQUEST: {
+            case PermissionsManager.READ_STORAGE_PERMISSION: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     addPhoto();
-                }
-                else{
+                } else {
                     Toast toast = Toast. makeText(getApplicationContext(),"Permiso Denegado",Toast. LENGTH_SHORT);
                     toast. setMargin(50,50);
                     toast. show();
                 }
                 return;
             }
-            case REQUEST_IMAGE_CAPTURE: {
+            case PermissionsManager.CAMERA_PERMISSION: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
                 {
                     takePicture();
@@ -109,22 +113,30 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == IMAGE_PICKER_REQUEST && resultCode == RESULT_OK){
-            try {
-                final Uri imageUri = data.getData();
-                final InputStream imageStream = getContentResolver().openInputStream(imageUri);
-                final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-                imgFoto.setImageBitmap(selectedImage);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
+        if(resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case PermissionsManager.REQUEST_IMAGE_CAPTURE:
+                    Bundle extras = data.getExtras();
+                    Bitmap imageBitmap = (Bitmap) extras.get("data");
+                    imgFoto.setImageBitmap(imageBitmap);
+                    imgFoto.requestLayout();
+                    break;
+                case PermissionsManager.IMAGE_PICKER_REQUEST:
+                    try {
+                        final Uri imageUri = data.getData();
+                        final InputStream imageStream = this.getContentResolver().openInputStream(imageUri);
+                        final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
+                        imgFoto.setImageBitmap(selectedImage);
+                        imgFoto.setScaleType(ImageView.ScaleType.FIT_XY);
+                        imgFoto.requestLayout();
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    break;
             }
-        }
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap) extras.get("data");
-            imgFoto.setImageBitmap(imageBitmap);
         }
     }
 }
