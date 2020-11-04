@@ -1,5 +1,6 @@
 package com.example.taller3cm;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -14,19 +15,31 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 public class RegisterActivity extends AppCompatActivity {
 
+    public final String TAG = "Taller Autentiación";
+    private FirebaseAuth mAuth;
 
-    Button btnGaleria, btnCamara;
+    Button btnGaleria, btnCamara, btnRegister;
     ImageView imgFoto;
+    EditText edtEmail, edtPassword;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,8 +48,20 @@ public class RegisterActivity extends AppCompatActivity {
 
         btnGaleria = findViewById(R.id.btnGallery);
         btnCamara = findViewById(R.id.btnCamera);
-        imgFoto = findViewById(R.id.imgPhoto);
+        btnRegister = findViewById(R.id.btnRegistrar);
 
+        imgFoto = findViewById(R.id.imgPhoto);
+        edtEmail = findViewById(R.id.edtEmail);
+        edtPassword = findViewById(R.id.edtPass);
+
+        mAuth = FirebaseAuth.getInstance();
+
+        btnRegister.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                signUp();
+            }
+        });
 
         btnGaleria.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,6 +77,89 @@ public class RegisterActivity extends AppCompatActivity {
                 takePicture();
             }
         });
+
+
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Check if user is signed in (non-null) and update UI accordingly.
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        updateUI(currentUser);
+    }
+
+    private void signUp() {
+        String email = this.edtEmail.getText().toString();
+        String password = this.edtPassword.getText().toString();
+
+        boolean validEmail = Utils.validateEmail(email);
+        boolean validPass = Utils.validatePassword(password);
+        boolean validFields = true;
+
+        if (!validEmail) {
+            if (email.isEmpty()) {
+                edtEmail.setError("Requerido");
+            } else {
+                edtEmail.setError("E-mail no válido");
+            }
+        } else edtEmail.setError(null);
+        if (!validPass) {
+            if (password.isEmpty()) {
+                edtPassword.setError("Requerido");
+            }
+            else{
+                edtPassword.setError(("Error"));
+            }
+
+        }
+
+        /*
+
+        if(edtNombreRegister.getText().toString().isEmpty()) {
+            validFields = false;
+            edtNombreRegister.setError("Requerido");
+        }
+        if(edtUserRegister.getText().toString().isEmpty()) {
+            validFields = false;
+            edtUserRegister.setError("Requerido");
+        }*/
+
+        if (validEmail && validPass && validFields) {
+
+            mAuth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful()) {
+                                // Sign in success, update UI with the signed-in user's information
+                                Log.d(TAG, "createUserWithEmail:success");
+                                FirebaseUser user = mAuth.getCurrentUser();
+                                updateUI(user);
+                            } else {
+                                // If sign in fails, display a message to the user.
+                                Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                                updateUI(null);
+                            }
+
+                            // ...
+                        }
+                    });
+        }
+    }
+
+    private void updateUI(FirebaseUser mUser) {
+        if (mUser != null) {
+            Intent intent = new Intent(getBaseContext(), MapActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            finish();
+        } else {
+            View parentLayout = findViewById(android.R.id.content);
+            Toast toast = Toast. makeText(getApplicationContext(),"No se pudo registrar",Toast. LENGTH_SHORT);
+            toast. setMargin(50,50);
+            toast. show();
+        }
     }
 
     private void addPhoto()

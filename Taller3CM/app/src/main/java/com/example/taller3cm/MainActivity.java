@@ -19,7 +19,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity {
 
-    public final String TAG = "Taller Autentiación";
+    public final String TAG = "Taller Autenticación";
     EditText edtUser, edtPassword;
     Button btnLogin, btnSignup;
     private FirebaseAuth mAuth;
