@@ -70,7 +70,6 @@ public class RegisterActivity extends AppCompatActivity {
                 }
         });
 
-
         btnCamara.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
