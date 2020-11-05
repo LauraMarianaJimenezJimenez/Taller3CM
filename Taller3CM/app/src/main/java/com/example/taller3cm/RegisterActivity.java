@@ -38,7 +38,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     Button btnGaleria, btnCamara, btnRegister;
     ImageView imgFoto;
-    EditText edtEmail, edtPassword;
+    EditText edtEmail, edtPassword, edtNombre, edtApellido, edtDocumento, edtLatitud, edtLongitud;
 
 
     @Override
@@ -51,8 +51,14 @@ public class RegisterActivity extends AppCompatActivity {
         btnRegister = findViewById(R.id.btnRegistrar);
 
         imgFoto = findViewById(R.id.imgPhoto);
+
         edtEmail = findViewById(R.id.edtEmail);
         edtPassword = findViewById(R.id.edtPass);
+        edtNombre = findViewById(R.id.edtName);
+        edtApellido = findViewById(R.id.edtLastName);
+        edtDocumento = findViewById(R.id.edtDocumento);
+        edtLatitud = findViewById(R.id.edtLatitud);
+        edtLongitud = findViewById(R.id.edtLongitud);
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -113,16 +119,37 @@ public class RegisterActivity extends AppCompatActivity {
 
         }
 
-        /*
 
-        if(edtNombreRegister.getText().toString().isEmpty()) {
+
+        if(edtNombre.getText().toString().isEmpty()) {
             validFields = false;
-            edtNombreRegister.setError("Requerido");
+            edtNombre.setError("Requerido");
         }
-        if(edtUserRegister.getText().toString().isEmpty()) {
+        if(edtApellido.getText().toString().isEmpty()) {
             validFields = false;
-            edtUserRegister.setError("Requerido");
-        }*/
+            edtApellido.setError("Requerido");
+        }
+        if(edtEmail.getText().toString().isEmpty()) {
+            validFields = false;
+            edtEmail.setError("Requerido");
+        }
+        if(edtPassword.getText().toString().isEmpty()) {
+            validFields = false;
+            edtPassword.setError("Requerido");
+        }
+        if(edtDocumento.getText().toString().isEmpty()) {
+            validFields = false;
+            edtDocumento.setError("Requerido");
+        }
+        if(edtLatitud.getText().toString().isEmpty()) {
+            validFields = false;
+            edtLatitud.setError("Requerido");
+        }
+        if(edtLongitud.getText().toString().isEmpty()) {
+            validFields = false;
+            edtLongitud.setError("Requerido");
+        }
+
 
         if (validEmail && validPass && validFields) {
 
@@ -153,15 +180,28 @@ public class RegisterActivity extends AppCompatActivity {
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
             finish();
-        } else {
-            View parentLayout = findViewById(android.R.id.content);
+        } /* else {
             Toast toast = Toast. makeText(getApplicationContext(),"No se pudo registrar",Toast. LENGTH_SHORT);
             toast. setMargin(50,50);
             toast. show();
-        }
+        } */
     }
 
     private void addPhoto()
+    {
+        PermissionsManager.requestPermission((Activity)this, Manifest.permission.READ_EXTERNAL_STORAGE,
+                "Para poder mostrar fotos que ya tenga guardadas", PermissionsManager.READ_STORAGE_PERMISSION);
+        if(ContextCompat.checkSelfPermission((Activity)this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
+        {
+            Intent pickImage = new Intent(Intent.ACTION_PICK);
+            pickImage.setType("image/*");
+            startActivityForResult(pickImage, PermissionsManager.IMAGE_PICKER_REQUEST);
+        }
+
+
+    }
+
+    private void takePicture()
     {
         PermissionsManager.requestPermission((Activity) this, Manifest.permission.CAMERA,
                 "Para poder mostrar fotos tomadas desde su cámara", PermissionsManager.CAMERA_PERMISSION );
@@ -173,31 +213,18 @@ public class RegisterActivity extends AppCompatActivity {
             }
         }
 
-
-    }
-
-    private void takePicture()
-    {
-        PermissionsManager.requestPermission((Activity)this, Manifest.permission.READ_EXTERNAL_STORAGE,
-                "Para poder mostrar fotos que ya tenga guardadas", PermissionsManager.READ_STORAGE_PERMISSION);
-        if(ContextCompat.checkSelfPermission((Activity)this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
-        {
-            Intent pickImage = new Intent(Intent.ACTION_PICK);
-            pickImage.setType("image/*");
-            startActivityForResult(pickImage, PermissionsManager.IMAGE_PICKER_REQUEST);
-        }
     }
 
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case PermissionsManager.READ_STORAGE_PERMISSION: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     addPhoto();
                 } else {
-                    Toast toast = Toast. makeText(getApplicationContext(),"Permiso Denegado",Toast. LENGTH_SHORT);
+                    Toast toast = Toast. makeText(getApplicationContext(),"permiso denegado",Toast. LENGTH_SHORT);
                     toast. setMargin(50,50);
                     toast. show();
                 }
@@ -210,7 +237,8 @@ public class RegisterActivity extends AppCompatActivity {
                 }
                 else
                 {
-                    Toast toast = Toast. makeText(getApplicationContext(),"Permiso Denegado",Toast. LENGTH_SHORT);
+
+                    Toast toast = Toast. makeText(getApplicationContext(),"permiso denegado",Toast. LENGTH_SHORT);
                     toast. setMargin(50,50);
                     toast. show();
                 }
