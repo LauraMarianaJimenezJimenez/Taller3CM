@@ -27,6 +27,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -34,7 +36,10 @@ import java.io.InputStream;
 public class RegisterActivity extends AppCompatActivity {
 
     public final String TAG = "Taller Autentiación";
+    public static final String USERS = "users/";
     private FirebaseAuth mAuth;
+    FirebaseDatabase database;
+    DatabaseReference myRef;
 
     Button btnGaleria, btnCamara, btnRegister;
     ImageView imgFoto;
@@ -45,6 +50,10 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+
+        mAuth = FirebaseAuth.getInstance();
+        database = FirebaseDatabase.getInstance();
+        myRef = database.getReference(USERS);
 
         btnGaleria = findViewById(R.id.btnGallery);
         btnCamara = findViewById(R.id.btnCamera);
@@ -60,7 +69,7 @@ public class RegisterActivity extends AppCompatActivity {
         edtLatitud = findViewById(R.id.edtLatitud);
         edtLongitud = findViewById(R.id.edtLongitud);
 
-        mAuth = FirebaseAuth.getInstance();
+
 
         btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,6 +104,13 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void signUp() {
+
+
+        String nombre = this.edtNombre.getText().toString();
+        String apellido = this.edtApellido.getText().toString();
+        String documento = this.edtDocumento.getText().toString();
+        String latitud = this.edtLatitud.getText().toString();
+        String longitud = this.edtLongitud.getText().toString();
         String email = this.edtEmail.getText().toString();
         String password = this.edtPassword.getText().toString();
 
@@ -150,6 +166,12 @@ public class RegisterActivity extends AppCompatActivity {
             edtLongitud.setError("Requerido");
         }
 
+        if(validFields){
+            Usuario user = new Usuario(nombre, apellido, documento, longitud, latitud);
+            String key = edtDocumento.getText().toString();
+            myRef = database.getReference(USERS + key);
+            myRef.setValue(user);
+        }
 
         if (validEmail && validPass && validFields) {
 
