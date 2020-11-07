@@ -151,7 +151,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:ems="10"
-        android:inputType="number"
+        android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/txtLatitud"
         app:layout_constraintTop_toBottomOf="@+id/edtDocumento" />
@@ -174,7 +174,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:ems="10"
-        android:inputType="number"
+        android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/txtLongitud"
         app:layout_constraintTop_toBottomOf="@+id/edtLatitud" />

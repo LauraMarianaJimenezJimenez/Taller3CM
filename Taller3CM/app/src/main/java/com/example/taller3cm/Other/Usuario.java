@@ -8,17 +8,23 @@ public class Usuario {
     String longitud;
     String latitud;
     String uriFoto;
+    boolean disponible;
 
     public Usuario() {
     }
 
-    public Usuario(String nombre, String apellido, String documento, String longitud, String latitud) {
+    public Usuario(String nombre, String apellido, String documento, String longitud, String latitud, boolean disponible) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.documento = documento;
         this.longitud = longitud;
         this.latitud = latitud;
+        this.disponible = disponible;
         //this.uriFoto = uriFoto;
+    }
+
+    public boolean isDisponible() {
+        return disponible;
     }
 
     public String getNombre() {

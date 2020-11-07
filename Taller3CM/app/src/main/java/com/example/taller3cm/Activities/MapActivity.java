@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.taller3cm.Other.Usuario;
 import com.example.taller3cm.R;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -38,9 +39,14 @@ public class MapActivity extends AppCompatActivity {
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
         }
-        if(id == R.id.menuListaDisponibles)
+        if(id == R.id.menuDisponible)
         {
 
+        }
+        if(id == R.id.menuListaDisponibles)
+        {
+            Intent intent = new Intent(MapActivity.this, AvailableListActivity.class);
+            startActivity(intent);
         }
 
         return true;

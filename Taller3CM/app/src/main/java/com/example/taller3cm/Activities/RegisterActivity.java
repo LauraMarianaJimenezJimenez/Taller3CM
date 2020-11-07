@@ -25,13 +25,19 @@ import com.example.taller3cm.R;
 import com.example.taller3cm.Other.Usuario;
 import com.example.taller3cm.Other.Utils;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
@@ -39,6 +45,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     public final String TAG = "Taller Autentiación";
     public static final String USERS = "users/";
+    private StorageReference mStorageRef;
     private FirebaseAuth mAuth;
     FirebaseDatabase database;
     DatabaseReference myRef;
@@ -56,6 +63,7 @@ public class RegisterActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
         myRef = database.getReference(USERS);
+        mStorageRef = FirebaseStorage.getInstance().getReference();
 
         btnGaleria = findViewById(R.id.btnGallery);
         btnCamara = findViewById(R.id.btnCamera);
@@ -115,6 +123,7 @@ public class RegisterActivity extends AppCompatActivity {
         String longitud = this.edtLongitud.getText().toString();
         String email = this.edtEmail.getText().toString();
         String password = this.edtPassword.getText().toString();
+        boolean disponible = false;
 
         boolean validEmail = Utils.validateEmail(email);
         boolean validPass = Utils.validatePassword(password);
@@ -169,10 +178,11 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         if(validFields){
-            Usuario user = new Usuario(nombre, apellido, documento, longitud, latitud);
-            String key = edtDocumento.getText().toString();
-            myRef = database.getReference(USERS + key);
+            Usuario user = new Usuario(nombre, apellido, documento, longitud, latitud, disponible);
+            String key = myRef.push().getKey();
+            myRef=database.getReference(USERS+key);
             myRef.setValue(user);
+            //uploadFile(key);
         }
 
         if (validEmail && validPass && validFields) {
@@ -295,5 +305,25 @@ public class RegisterActivity extends AppCompatActivity {
                     break;
             }
         }
+    }
+
+    private void uploadFile(String myRef){
+        Uri file = Uri.fromFile(new File("path/to/images/image.jpg"));
+        StorageReference imageRef = mStorageRef.child( USERS + myRef);
+        imageRef.putFile(file)
+                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+// Get a URL to the uploaded content
+                        Log.i("FBApp", "Succesfully upload image");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+// Handle unsuccessful uploads
+// ...
+                    }
+                });
     }
 }
