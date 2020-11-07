@@ -1,9 +1,7 @@
-package com.example.taller3cm;
+package com.example.taller3cm.Activities;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
@@ -22,6 +20,10 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.example.taller3cm.Other.PermissionsManager;
+import com.example.taller3cm.R;
+import com.example.taller3cm.Other.Usuario;
+import com.example.taller3cm.Other.Utils;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -219,9 +221,7 @@ public class RegisterActivity extends AppCompatActivity {
             pickImage.setType("image/*");
             startActivityForResult(pickImage, PermissionsManager.IMAGE_PICKER_REQUEST);
         }
-
-
-    }
+   }
 
     private void takePicture()
     {

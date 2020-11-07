@@ -1,4 +1,4 @@
-package com.example.taller3cm;
+package com.example.taller3cm.Other;
 
 public class Usuario {
 
