@@ -38,6 +38,10 @@ public class MapActivity extends AppCompatActivity {
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
         }
+        if(id == R.id.menuListaDisponibles)
+        {
+
+        }
 
         return true;
     }
