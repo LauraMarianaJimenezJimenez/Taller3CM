@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "743642215714",
+    "firebase_url": "https://taller3cm.firebaseio.com",
+    "project_id": "taller3cm",
+    "storage_bucket": "taller3cm.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:743642215714:android:f3bbbac6d47efef2d4a17b",
+        "android_client_info": {
+          "package_name": "com.example.taller3cm"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "743642215714-dbedghf6u8js7u1h2artrrvvnq2cr7fr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.taller3cm",
+            "certificate_hash": "1fcfc7c2d22e72970f5009eddea51e98cde57bc2"
+          }
+        },
+        {
+          "client_id": "743642215714-tumfkrfmdbunjo0h1hemmpon03jpsq3n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_npY7QorSQhMtjMz9408MHR3qHOhGim0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "743642215714-tumfkrfmdbunjo0h1hemmpon03jpsq3n.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
