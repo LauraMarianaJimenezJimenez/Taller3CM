@@ -146,8 +146,6 @@ public class RegisterActivity extends AppCompatActivity {
 
         }
 
-
-
         if(edtNombre.getText().toString().isEmpty()) {
             validFields = false;
             edtNombre.setError("Requerido");
