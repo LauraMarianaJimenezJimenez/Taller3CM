@@ -8,21 +8,13 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 import com.example.taller3cm.Other.Localizacion;
 import com.example.taller3cm.R;
@@ -42,10 +34,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MapStyleOptions;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -58,19 +47,24 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private final static int LOCATION_PERMESSION_REQUEST = 1;
     private final static int REQUEST_CHECK_SETTINGS = 2;
+    public static final String PATH_LOCATIONS = "locationsArray/";
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private LocationRequest mLocationRequest;
     private LocationCallback mLocationCallback;
     private GoogleMap mMap;
     Geocoder mGeocoder;
     LatLng ubactual;
+    FirebaseDatabase database;
+    DatabaseReference myRef;
     private FirebaseAuth mAuth;
+    ArrayList<Localizacion> locations = new ArrayList<>();
 
 
     @Override
@@ -79,6 +73,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
         mAuth = FirebaseAuth.getInstance();
+        database = FirebaseDatabase.getInstance();
 
         //Marcador inicial
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
@@ -89,7 +84,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 super.onLocationResult(locationResult);
                 Location my_location = locationResult.getLastLocation();
                 if(my_location!=null) {
-                    mMap.clear();
                     ubactual = new LatLng(my_location.getLatitude(), my_location.getLongitude());
                     mMap.addMarker(new MarkerOptions().position(ubactual).title("Ubicación actual: " + geoCoderSearchLatLng(ubactual)));
                     mMap.moveCamera(CameraUpdateFactory.newLatLng(ubactual));
@@ -111,6 +105,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        //Markers
+        loadLocations();
     }
 
     //Menu
@@ -140,6 +136,34 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         return true;
     }
 
+    //Leer locaciones
+    public void loadLocations(){
+        myRef = database.getReference(PATH_LOCATIONS);
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for(DataSnapshot singleSnapsot : dataSnapshot.getChildren()){
+                    Localizacion loc = singleSnapsot.getValue(Localizacion.class);
+                    locations.add(loc);
+                    Log.i("BANDERA", "Tiene " + loc.getName()+ " " + loc.getLatitude() + loc.getLongitude() );
+                    Toast.makeText(MapActivity.this, "ENCONTRÉ", Toast.LENGTH_SHORT).show();
+                }
+                for(Localizacion loc : locations){
+                    LatLng p = new LatLng(loc.getLatitude(), loc.getLongitude());
+                    mMap.addMarker(new MarkerOptions().position(p).title(loc.getName()));
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(MapActivity.this, "error" , Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        Log.i("BANDERA size", "Tiene " + locations.size());
+    }
+
+    //Geocoder
     private String geoCoderSearchLatLng(LatLng latlng){
         String address = "";
         try{

@@ -1,41 +1,40 @@
 package com.example.taller3cm.Other;
 
 public class Localizacion {
-    double latitud;
-    double longitud;
-    String nombre;
+    double latitude;
+    double longitude;
+    String name;
 
-
-    public Localizacion(){
+    public Localizacion() {
     }
 
-    public Localizacion(double latitud, double longitud, String nombre) {
-        this.nombre = nombre;
-        this.latitud = latitud;
-        this.longitud = longitud;
+    public Localizacion(double latitude, double longitude, String name) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.name = name;
     }
 
-    public String getNombre() {
-        return nombre;
+    public double getLatitude() {
+        return latitude;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
     }
 
-    public double getLatitud() {
-        return latitud;
+    public double getLongitude() {
+        return longitude;
     }
 
-    public void setLatitud(double latitud) {
-        this.latitud = latitud;
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
     }
 
-    public double getLongitud() {
-        return longitud;
+    public String getName() {
+        return name;
     }
 
-    public void setLongitud(double longitud) {
-        this.longitud = longitud;
+    public void setName(String name) {
+        this.name = name;
     }
 }
