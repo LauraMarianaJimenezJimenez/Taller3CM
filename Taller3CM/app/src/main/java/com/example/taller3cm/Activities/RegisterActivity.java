@@ -37,6 +37,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -44,6 +45,7 @@ import java.io.InputStream;
 public class RegisterActivity extends AppCompatActivity {
 
     public final String TAG = "Taller Autentiación";
+    public final String IMAGE = "images/";
     public static final String USERS = "users/";
     private StorageReference mStorageRef;
     private FirebaseAuth mAuth;
@@ -53,6 +55,7 @@ public class RegisterActivity extends AppCompatActivity {
     Button btnGaleria, btnCamara, btnRegister;
     ImageView imgFoto;
     EditText edtEmail, edtPassword, edtNombre, edtApellido, edtDocumento, edtLatitud, edtLongitud;
+    Bitmap image;
 
 
     @Override
@@ -116,18 +119,13 @@ public class RegisterActivity extends AppCompatActivity {
     private void signUp() {
 
 
-        String nombre = this.edtNombre.getText().toString();
-        String apellido = this.edtApellido.getText().toString();
-        String documento = this.edtDocumento.getText().toString();
-        String latitud = this.edtLatitud.getText().toString();
-        String longitud = this.edtLongitud.getText().toString();
+
         String email = this.edtEmail.getText().toString();
         String password = this.edtPassword.getText().toString();
-        boolean disponible = false;
 
         boolean validEmail = Utils.validateEmail(email);
         boolean validPass = Utils.validatePassword(password);
-        boolean validFields = true;
+
 
         if (!validEmail) {
             if (email.isEmpty()) {
@@ -146,44 +144,8 @@ public class RegisterActivity extends AppCompatActivity {
 
         }
 
-        if(edtNombre.getText().toString().isEmpty()) {
-            validFields = false;
-            edtNombre.setError("Requerido");
-        }
-        if(edtApellido.getText().toString().isEmpty()) {
-            validFields = false;
-            edtApellido.setError("Requerido");
-        }
-        if(edtEmail.getText().toString().isEmpty()) {
-            validFields = false;
-            edtEmail.setError("Requerido");
-        }
-        if(edtPassword.getText().toString().isEmpty()) {
-            validFields = false;
-            edtPassword.setError("Requerido");
-        }
-        if(edtDocumento.getText().toString().isEmpty()) {
-            validFields = false;
-            edtDocumento.setError("Requerido");
-        }
-        if(edtLatitud.getText().toString().isEmpty()) {
-            validFields = false;
-            edtLatitud.setError("Requerido");
-        }
-        if(edtLongitud.getText().toString().isEmpty()) {
-            validFields = false;
-            edtLongitud.setError("Requerido");
-        }
 
-        if(validFields){
-            Usuario user = new Usuario(nombre, apellido, documento, longitud, latitud, disponible);
-            String key = myRef.push().getKey();
-            myRef=database.getReference(USERS+key);
-            myRef.setValue(user);
-            //uploadFile(key);
-        }
-
-        if (validEmail && validPass && validFields) {
+        if (validEmail && validPass) {
 
             mAuth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -208,15 +170,72 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void updateUI(FirebaseUser mUser) {
         if (mUser != null) {
-            Intent intent = new Intent(getBaseContext(), MapActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-            finish();
+            String nombre = this.edtNombre.getText().toString();
+            String apellido = this.edtApellido.getText().toString();
+            String documento = this.edtDocumento.getText().toString();
+            String latitud = this.edtLatitud.getText().toString();
+            String longitud = this.edtLongitud.getText().toString();
+            boolean disponible = false;
+            boolean validFields = true;
+
+            if(edtNombre.getText().toString().isEmpty()) {
+                validFields = false;
+                edtNombre.setError("Requerido");
+            }
+            if(edtApellido.getText().toString().isEmpty()) {
+                validFields = false;
+                edtApellido.setError("Requerido");
+            }
+            if(edtEmail.getText().toString().isEmpty()) {
+                validFields = false;
+                edtEmail.setError("Requerido");
+            }
+            if(edtPassword.getText().toString().isEmpty()) {
+                validFields = false;
+                edtPassword.setError("Requerido");
+            }
+            if(edtDocumento.getText().toString().isEmpty()) {
+                validFields = false;
+                edtDocumento.setError("Requerido");
+            }
+            if(edtLatitud.getText().toString().isEmpty()) {
+                validFields = false;
+                edtLatitud.setError("Requerido");
+            }
+            if(edtLongitud.getText().toString().isEmpty()) {
+                validFields = false;
+                edtLongitud.setError("Requerido");
+            }
+
+
+            if(validFields){
+                Usuario user = new Usuario(nombre, apellido, documento, longitud, latitud, disponible);
+                myRef = database.getReference(USERS + mUser.getUid());
+                myRef.setValue(user);
+                StorageReference myRefStorage = mStorageRef.child(IMAGE + mUser.getUid() + "/ profile.png");
+                myRefStorage.putBytes(convertirImagen()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        Intent intent = new Intent(getBaseContext(), MapActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent);
+                        finish();
+                    }
+                });
+
+            }
+
         } /* else {
             Toast toast = Toast. makeText(getApplicationContext(),"No se pudo registrar",Toast. LENGTH_SHORT);
             toast. setMargin(50,50);
             toast. show();
         } */
+    }
+
+    private byte[] convertirImagen(){
+        ByteArrayOutputStream arregloByte = new ByteArrayOutputStream();
+        image.compress(Bitmap.CompressFormat.PNG,100,arregloByte);
+        return arregloByte.toByteArray();
     }
 
     private void addPhoto()
@@ -286,6 +305,7 @@ public class RegisterActivity extends AppCompatActivity {
                 case PermissionsManager.REQUEST_IMAGE_CAPTURE:
                     Bundle extras = data.getExtras();
                     Bitmap imageBitmap = (Bitmap) extras.get("data");
+                    image = imageBitmap;
                     imgFoto.setImageBitmap(imageBitmap);
                     imgFoto.requestLayout();
                     break;
@@ -294,6 +314,7 @@ public class RegisterActivity extends AppCompatActivity {
                         final Uri imageUri = data.getData();
                         final InputStream imageStream = this.getContentResolver().openInputStream(imageUri);
                         final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
+                        image = selectedImage;
                         imgFoto.setImageBitmap(selectedImage);
                         imgFoto.setScaleType(ImageView.ScaleType.FIT_XY);
                         imgFoto.requestLayout();
