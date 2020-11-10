@@ -80,7 +80,7 @@ public class UserMapActivity extends FragmentActivity implements OnMapReadyCallb
                 if(my_location!=null) {
                     mMap.clear();
                     ubactual = new LatLng(my_location.getLatitude(), my_location.getLongitude());
-                    mMap.addMarker(new MarkerOptions().position(ubactual).title("Ubicación actual: " + geoCoderSearchLatLng(ubactual)));
+                    mMap.addMarker(new MarkerOptions().position(ubactual).title("Ubicación actual:"));
                     mMap.moveCamera(CameraUpdateFactory.newLatLng(ubactual));
                 }
             }
