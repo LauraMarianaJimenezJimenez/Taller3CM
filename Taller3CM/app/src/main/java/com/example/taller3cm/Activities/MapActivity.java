@@ -148,7 +148,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     Localizacion loc = singleSnapsot.getValue(Localizacion.class);
                     locations.add(loc);
                     Log.i("BANDERA", "Tiene " + loc.getName()+ " " + loc.getLatitude() + loc.getLongitude() );
-                    Toast.makeText(MapActivity.this, "ENCONTRÉ", Toast.LENGTH_SHORT).show();
                 }
                 for(Localizacion loc : locations){
                     LatLng p = new LatLng(loc.getLatitude(), loc.getLongitude());

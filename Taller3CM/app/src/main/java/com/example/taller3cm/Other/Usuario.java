@@ -6,15 +6,15 @@ public class Usuario {
     String nombre;
     String apellido;
     String documento;
-    String longitud;
-    String latitud;
+    double longitud;
+    double latitud;
     String uriFoto;
     boolean disponible;
 
     public Usuario() {
     }
 
-    public Usuario(String nombre, String apellido, String documento, String longitud, String latitud, boolean disponible) {
+    public Usuario(String nombre, String apellido, String documento, double longitud, double latitud, boolean disponible) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.documento = documento;
@@ -39,11 +39,11 @@ public class Usuario {
         return nombre;
     }
 
-    public String getLongitud() {
+    public double getLongitud() {
         return longitud;
     }
 
-    public String getLatitud() {
+    public double getLatitud() {
         return latitud;
     }
 
