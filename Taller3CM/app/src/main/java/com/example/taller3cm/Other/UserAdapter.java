@@ -1,6 +1,7 @@
 package com.example.taller3cm.Other;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,6 +15,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.example.taller3cm.Activities.RegisterActivity;
+import com.example.taller3cm.Activities.UserMapActivity;
 import com.example.taller3cm.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -62,12 +65,15 @@ public class UserAdapter extends ArrayAdapter<Usuario> {
         btnPosition.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(context, "Ver Ubicación", Toast.LENGTH_LONG).show();
-
+                Intent i = new Intent(rowView.getContext(), UserMapActivity.class);
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                String seguir = values.get(position).getId();
+                i.putExtra("id", seguir);
+                rowView.getContext().startActivity(i);
             }
         });
-        return rowView;
 
+        return rowView;
     }
 
     private void downloadFile(String id, final ImageView imgUser) throws IOException {

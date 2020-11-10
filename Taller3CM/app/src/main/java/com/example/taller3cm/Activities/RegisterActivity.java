@@ -39,10 +39,6 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.SettingsClient;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -55,9 +51,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
@@ -116,7 +110,7 @@ public class RegisterActivity extends AppCompatActivity {
                 if(my_location!=null) {
                     latitud = my_location.getLatitude();
                     longitud = my_location.getLongitude();
-                    Log.i("UBICACION", "Mi latitud es: " + latitud+ "- Mi longitud es: " + longitud);
+                    Log.i("UBICACION", "Mi latitud es: " + latitud + "- Mi longitud es: " + longitud);
                 }
             }
         };
