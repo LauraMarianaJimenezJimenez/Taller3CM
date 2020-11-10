@@ -240,6 +240,7 @@ public class RegisterActivity extends AppCompatActivity {
                 user.setDocumento(documento);
                 user.setDisponible(disponible);
                 user.setId(mUser.getUid());
+                user.setDisponible(disponible);
                 user.setLatitud(latitud);
                 user.setLongitud(longitud);
 
