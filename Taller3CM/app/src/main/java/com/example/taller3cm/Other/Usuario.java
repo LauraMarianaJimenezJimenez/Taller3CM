@@ -14,7 +14,13 @@ public class Usuario {
     public Usuario() {
     }
 
-    public Usuario(String nombre, String apellido, String documento, double longitud, double latitud, boolean disponible) {
+    public Usuario(String id, String nombre, String apellido) {
+        this.id = id;
+        this.nombre = nombre;
+        this.apellido = apellido;
+    }
+
+    public Usuario(String nombre, String apellido, String documento, String longitud, String latitud, boolean disponible) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.documento = documento;
