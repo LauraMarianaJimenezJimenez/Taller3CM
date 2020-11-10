@@ -211,6 +211,7 @@ public class RegisterActivity extends AppCompatActivity {
             boolean disponible = false;
             boolean validFields = true;
 
+
             if(edtNombre.getText().toString().isEmpty()) {
                 validFields = false;
                 edtNombre.setError("Requerido");
@@ -233,10 +234,18 @@ public class RegisterActivity extends AppCompatActivity {
             }
 
             if(validFields){
-                Usuario user = new Usuario(nombre, apellido, documento, longitud, latitud, disponible);
+                Usuario user = new Usuario();
+                user.setNombre(nombre);
+                user.setApellido(apellido);
+                user.setDocumento(documento);
+                user.setDisponible(disponible);
+                user.setId(mUser.getUid());
+                user.setLatitud(latitud);
+                user.setLongitud(longitud);
+
                 myRef = database.getReference(USERS + mUser.getUid());
                 myRef.setValue(user);
-                StorageReference myRefStorage = mStorageRef.child(IMAGE + mUser.getUid() + "/ profile.png");
+                StorageReference myRefStorage = mStorageRef.child(IMAGE + mUser.getUid() + "/ profile.jpg");
                 myRefStorage.putBytes(convertirImagen()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {

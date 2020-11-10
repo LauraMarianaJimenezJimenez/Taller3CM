@@ -30,12 +30,13 @@ public class UserAdapter extends ArrayAdapter<Usuario> {
     private final Context context;
     private final ArrayList<Usuario> values;
     public final String IMAGE = "images/";
-    private StorageReference mStorageRef = FirebaseStorage.getInstance().getReference();
+    private StorageReference mStorageRef;
 
     public UserAdapter(Context context, ArrayList<Usuario> values) {
         super(context, R.layout.user_adapter, values);
         this.context = context;
         this.values = values;
+        mStorageRef = FirebaseStorage.getInstance().getReference();
     }
 
     @Override
@@ -43,10 +44,12 @@ public class UserAdapter extends ArrayAdapter<Usuario> {
 
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View rowView = inflater.inflate(R.layout.user_adapter, parent, false);
-        TextView txtName = rowView.findViewById(R.id.txtName);
-        TextView txtLastName = rowView.findViewById(R.id.txtLastName);
-        ImageView imgUser = rowView.findViewById(R.id.imgUser);
+
+        TextView txtName = rowView.findViewById(R.id.txtUserName);
+        TextView txtLastName = rowView.findViewById(R.id.textUserLastName);
+        ImageView imgUser = rowView.findViewById(R.id.imgAdapterUser);
         Button btnPosition = rowView.findViewById(R.id.btnUbicacion);
+
 
         txtName.setText(this.values.get(position).getNombre());
         txtLastName.setText(this.values.get(position).getApellido());
@@ -68,10 +71,10 @@ public class UserAdapter extends ArrayAdapter<Usuario> {
     }
 
     private void downloadFile(String id, final ImageView imgUser) throws IOException {
-        final File localFile = File.createTempFile("images", "png");
-        StorageReference imageRef = mStorageRef.child(IMAGE + id + "/profile.png");
-        imageRef.getFile(localFile)
-                .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+        final File localFile = File.createTempFile("images", "jpg");
+        Log.i("TAG ID", id);
+        StorageReference imageRef = mStorageRef.child(IMAGE + id + "/profile.jpg");
+        imageRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
 
@@ -81,7 +84,7 @@ public class UserAdapter extends ArrayAdapter<Usuario> {
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
-
+                Log.i("FBApp", "unsuccesfully downloaded");
             }
         });
     }

@@ -16,6 +16,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.ArrayList;
 
@@ -33,29 +34,28 @@ public class AvailableListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_available_list);
 
+        database = FirebaseDatabase.getInstance();
         listaDisponibles = findViewById(R.id.lstDisponibles);
-        //loadUsers();
-        //UserAdapter adapter = new UserAdapter(getBaseContext(), usuarios);
-        //listaDisponibles.setAdapter(adapter);
-
-
-
+        loadUsers();
     }
 
-    /*
-    public void loadUsers(){
 
+    public void loadUsers(){
         myRef = database.getReference(USERS);
         usuario = myRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                usuarios.clear();
                 for(DataSnapshot single: dataSnapshot.getChildren()){
                     Usuario user = single.getValue(Usuario.class);
                     if (user.isDisponible())
                     {
-
+                        usuarios.add(user);
                     }
                 }
+
+                UserAdapter adapter = new UserAdapter(getBaseContext(), usuarios);
+                listaDisponibles.setAdapter(adapter);
             }
 
             @Override
@@ -66,5 +66,5 @@ public class AvailableListActivity extends AppCompatActivity {
 
 
 
-    }*/
+    }
 }

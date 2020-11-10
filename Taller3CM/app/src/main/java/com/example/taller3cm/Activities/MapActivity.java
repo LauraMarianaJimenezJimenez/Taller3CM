@@ -18,6 +18,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 import com.example.taller3cm.Other.Localizacion;
+import com.example.taller3cm.Other.UserAdapter;
+import com.example.taller3cm.Other.Usuario;
 import com.example.taller3cm.R;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.CommonStatusCodes;
@@ -129,7 +131,30 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
 
         if(id == R.id.menuDisponible) {
+            myRef = database.getReference("users/");
+            myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    for (DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
+                        Usuario user = singleSnapshot.getValue(Usuario.class);
+                        if(user.getId().equals(mAuth.getUid()))
+                        {
+                            if (user.isDisponible()) {
+                                user.setDisponible(false);
+                            } else {
+                                user.setDisponible(true);
+                            }
+                        }
 
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+
+            });
         }
         if(id == R.id.menuListaDisponibles) {
             Intent intent = new Intent(MapActivity.this, AvailableListActivity.class);
