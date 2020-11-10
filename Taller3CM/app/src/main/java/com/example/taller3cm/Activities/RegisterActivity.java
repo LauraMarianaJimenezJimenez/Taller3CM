@@ -79,8 +79,8 @@ public class RegisterActivity extends AppCompatActivity {
         edtNombre = findViewById(R.id.edtName);
         edtApellido = findViewById(R.id.edtLastName);
         edtDocumento = findViewById(R.id.edtDocumento);
-        edtLatitud = findViewById(R.id.edtLatitud);
-        edtLongitud = findViewById(R.id.edtLongitud);
+        //edtLatitud = findViewById(R.id.edtLatitud);
+        //edtLongitud = findViewById(R.id.edtLongitud);
 
 
 
@@ -325,24 +325,5 @@ public class RegisterActivity extends AppCompatActivity {
             }
         }
     }
-
-    private void uploadFile(String myRef){
-        Uri file = Uri.fromFile(new File("path/to/images/image.jpg"));
-        StorageReference imageRef = mStorageRef.child( USERS + myRef);
-        imageRef.putFile(file)
-                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-// Get a URL to the uploaded content
-                        Log.i("FBApp", "Succesfully upload image");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception exception) {
-// Handle unsuccessful uploads
-// ...
-                    }
-                });
-    }
+    
 }
