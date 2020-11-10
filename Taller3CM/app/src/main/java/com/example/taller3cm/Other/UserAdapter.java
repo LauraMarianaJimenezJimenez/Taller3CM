@@ -71,9 +71,9 @@ public class UserAdapter extends ArrayAdapter<Usuario> {
     }
 
     private void downloadFile(String id, final ImageView imgUser) throws IOException {
-        final File localFile = File.createTempFile("images", "jpg");
+        final File localFile = File.createTempFile("images", "jpeg");
         Log.i("TAG ID", id);
-        StorageReference imageRef = mStorageRef.child(IMAGE + id + "/profile.jpg");
+        StorageReference imageRef = mStorageRef.child(IMAGE + id + "/profile.jpeg");
         imageRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
