@@ -129,6 +129,8 @@ public class UserMapActivity extends FragmentActivity implements OnMapReadyCallb
                         Log.i("LOAD LOCATION", "Tengo esta ubcacion a seguir: "+ ubSeguir);
                         nameSeguir = user.getNombre().concat(" ").concat(user.getApellido());
                         //Poner marker
+                        mMap.clear();
+                        mMap.addMarker(new MarkerOptions().position(ubactual).title("Ubicación actual!"));
                         mMap.addMarker(new MarkerOptions().position(ubSeguir).title(nameSeguir));
                         mMap.moveCamera(CameraUpdateFactory.newLatLng(ubSeguir));
                         Log.i("TRACKING MARKER", "Puse marker");
