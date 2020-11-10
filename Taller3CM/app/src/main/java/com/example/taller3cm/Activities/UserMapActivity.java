@@ -68,10 +68,8 @@ public class UserMapActivity extends FragmentActivity implements OnMapReadyCallb
     DatabaseReference myRef;
     FirebaseDatabase database;
     TextView txtDis;
-    Geocoder mGeocoder;
     LatLng ubactual, ubSeguir;
     String distancia, idSeguir, nameSeguir;
-    Usuario usuarioSeguir;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,27 +111,8 @@ public class UserMapActivity extends FragmentActivity implements OnMapReadyCallb
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-
         mMap = googleMap;
-
         loadPosition();
-
-        /*
-        //Añadir marker de seguimiento
-        if(ubSeguir!=null) {
-            mMap.addMarker(new MarkerOptions().position(ubSeguir).title(nameSeguir));
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(ubSeguir));
-        }
-
-         */
-        //Mostrar distancia
-        /*
-        distancia = String.valueOf(calculateDistance(ubactual.latitude, ubSeguir.latitude, ubactual.longitude, ubSeguir.longitude));
-        txtDis.setText("Distancia: " + distancia);
-        Log.i("DISTANCIA", "mi distancia al otro usuario es: " + distancia);
-
-         */
-
     }
 
     //Leer posicion del usuario a seguir
@@ -147,16 +126,16 @@ public class UserMapActivity extends FragmentActivity implements OnMapReadyCallb
                     if(idSeguir.equals(user.getId())){
                         Log.i("ID seguimiento", user.getId());
                         ubSeguir = new LatLng(user.getLatitud(), user.getLongitud());
-                        Log.i("BANDERA LOAD", "Tengo esta ubcacion a seguir: "+ ubSeguir);
+                        Log.i("LOAD LOCATION", "Tengo esta ubcacion a seguir: "+ ubSeguir);
                         nameSeguir = user.getNombre().concat(" ").concat(user.getApellido());
                         //Poner marker
                         mMap.addMarker(new MarkerOptions().position(ubSeguir).title(nameSeguir));
                         mMap.moveCamera(CameraUpdateFactory.newLatLng(ubSeguir));
-                        Log.i("MARKER", "Puse marker carnal");
+                        Log.i("TRACKING MARKER", "Puse marker");
 
                         //Mostrar distancia
                         distancia = String.valueOf(calculateDistance(ubactual.latitude, ubSeguir.latitude, ubactual.longitude, ubSeguir.longitude));
-                        txtDis.setText("Distancia a " +nameSeguir+": " +distancia + " Km");
+                        txtDis.setText("Distancia a " +nameSeguir+": " + distancia + " Km");
                         Log.i("DISTANCIA", "mi distancia al otro usuario es: " + distancia);
 
                     }
@@ -170,18 +149,6 @@ public class UserMapActivity extends FragmentActivity implements OnMapReadyCallb
                 Log.i("DB Realtime", "Error");
             }
         });
-    }
-    private String geoCoderSearchLatLng(LatLng latlng){
-        String address = "";
-        try{
-            List<Address> res = mGeocoder.getFromLocation(latlng.latitude, latlng.longitude, 2);
-            if(res != null && res.size() > 0){
-                address = res.get(0).getAddressLine(0);
-            }
-        }catch(IOException e){
-            e.printStackTrace();
-        }
-        return address;
     }
 
     //Calcular distancia
