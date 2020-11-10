@@ -5,12 +5,14 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ListView;
 
 
 import com.example.taller3cm.Other.UserAdapter;
 import com.example.taller3cm.Other.Usuario;
 import com.example.taller3cm.R;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -27,7 +29,9 @@ public class AvailableListActivity extends AppCompatActivity {
     FirebaseDatabase database;
     ListView listaDisponibles;
     ValueEventListener usuario;
+    private FirebaseAuth mAuth;
     ArrayList<Usuario> usuarios = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +39,7 @@ public class AvailableListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_available_list);
 
         database = FirebaseDatabase.getInstance();
+        mAuth = FirebaseAuth.getInstance();
         listaDisponibles = findViewById(R.id.lstDisponibles);
         loadUsers();
     }
@@ -49,10 +54,16 @@ public class AvailableListActivity extends AppCompatActivity {
                 usuarios.clear();
                 for(DataSnapshot single: dataSnapshot.getChildren()){
                     Usuario user = single.getValue(Usuario.class);
-                    if (user.isDisponible())
+                    Log.i("user.getId", user.getId());
+                    Log.i("mAuth.getUid", mAuth.getUid());
+                    if(!(user.getId().equals(mAuth.getUid())))
                     {
-                        usuarios.add(user);
+                        if (user.isDisponible())
+                        {
+                            usuarios.add(user);
+                        }
                     }
+
                 }
 
                 UserAdapter adapter = new UserAdapter(getBaseContext(), usuarios);
