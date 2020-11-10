@@ -1,25 +1,26 @@
 package com.example.taller3cm.Activities;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentActivity;
+
 import android.Manifest;
 import android.app.Activity;
-import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.hardware.Sensor;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
-import com.example.taller3cm.Other.Localizacion;
-import com.example.taller3cm.Other.UserAdapter;
-import com.example.taller3cm.Other.Usuario;
+
 import com.example.taller3cm.R;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.CommonStatusCodes;
@@ -37,45 +38,36 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
-public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class UserMapActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private final static int LOCATION_PERMESSION_REQUEST = 1;
     private final static int REQUEST_CHECK_SETTINGS = 2;
-    public static final String PATH_LOCATIONS = "locationsArray/";
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private LocationRequest mLocationRequest;
     private LocationCallback mLocationCallback;
     private GoogleMap mMap;
+    TextView txtDis;
     Geocoder mGeocoder;
     LatLng ubactual;
-    FirebaseDatabase database;
-    DatabaseReference myRef;
-    private FirebaseAuth mAuth;
-    ArrayList<Localizacion> locations = new ArrayList<>();
-
+    String distancia;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_map);
-        mAuth = FirebaseAuth.getInstance();
-        database = FirebaseDatabase.getInstance();
+        setContentView(R.layout.activity_user_map);
+        txtDis = findViewById(R.id.txtDis);
 
         //Marcador inicial
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
@@ -86,15 +78,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 super.onLocationResult(locationResult);
                 Location my_location = locationResult.getLastLocation();
                 if(my_location!=null) {
+                    mMap.clear();
                     ubactual = new LatLng(my_location.getLatitude(), my_location.getLongitude());
                     mMap.addMarker(new MarkerOptions().position(ubactual).title("Ubicación actual: " + geoCoderSearchLatLng(ubactual)));
                     mMap.moveCamera(CameraUpdateFactory.newLatLng(ubactual));
                 }
             }
         };
-
-        //Search addresses
-        mGeocoder = new Geocoder(getBaseContext());
 
         requestPermission(this, Manifest.permission.ACCESS_FINE_LOCATION,"Es necesario para el funcionamiento correcto de la APP.",LOCATION_PERMESSION_REQUEST);
         usePermition();
@@ -107,95 +97,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        //Markers
-        loadLocations();
+        //Mostrar distancia
+        //distancia = String.valueOf(calculateDistance(ubactual.latitude, pos.latitude, ubactual.longitude, pos.longitude));
+        txtDis.setText("Distancia: " + distancia);
+        Log.i("DISTANCIA", "mi distancia al otro usuario es: " + distancia);
     }
 
-    //Menu
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menuprincipal, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
-
-        if(id == R.id.menuLogout) {
-            mAuth.signOut();
-            Intent intent = new Intent(MapActivity.this, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-        }
-
-        if(id == R.id.menuDisponible) {
-            myRef = database.getReference("users/");
-            myRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    for (DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
-                        Usuario user = singleSnapshot.getValue(Usuario.class);
-                        if(user.getId().equals(mAuth.getUid()))
-                        {
-
-                            if (user.isDisponible()) {
-                                Log.i("user.getId", user.getId());
-                                Log.i("mAuth.getUid", mAuth.getUid());
-                                user.setDisponible(false);
-                                myRef=database.getReference("users/" + user.getId());
-                                myRef.setValue(user);
-                            } else {
-                                user.setDisponible(true);
-                                myRef=database.getReference("users/" + user.getId());
-                                myRef.setValue(user);
-                            }
-                        }
-
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                }
-
-            });
-        }
-        if(id == R.id.menuListaDisponibles) {
-            Intent intent = new Intent(MapActivity.this, AvailableListActivity.class);
-            startActivity(intent);
-        }
-
-        return true;
-    }
-    //Leer locaciones
-    public void loadLocations(){
-        myRef = database.getReference(PATH_LOCATIONS);
-        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for(DataSnapshot singleSnapsot : dataSnapshot.getChildren()){
-                    Localizacion loc = singleSnapsot.getValue(Localizacion.class);
-                    locations.add(loc);
-                    Log.i("BANDERA", "Tiene " + loc.getName()+ " " + loc.getLatitude() + loc.getLongitude() );
-                }
-                for(Localizacion loc : locations){
-                    LatLng p = new LatLng(loc.getLatitude(), loc.getLongitude());
-                    mMap.addMarker(new MarkerOptions().position(p).title(loc.getName()));
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(MapActivity.this, "error" , Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        Log.i("BANDERA size", "Tiene " + locations.size());
-    }
-
-    //Geocoder
     private String geoCoderSearchLatLng(LatLng latlng){
         String address = "";
         try{
@@ -209,9 +116,24 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         return address;
     }
 
+    //Calcular distancia
+    public static double calculateDistance (double lat1, double lat2, double lon1, double lon2) {
+        final int R = 6371; // Radius of the earth
+
+        double latDistance = Math.toRadians(lat2 - lat1);
+        double lonDistance = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double distance = R * c;
+
+        return Math.round(distance*100.0)/100.0;
+    }
+
     //Permisos
     private void usePermition() {
-        if(ContextCompat.checkSelfPermission(getBaseContext(),Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED) {
+        if(ContextCompat.checkSelfPermission(getBaseContext(),Manifest.permission.ACCESS_FINE_LOCATION)== PackageManager.PERMISSION_GRANTED) {
             checkSettings();
         }
     }
@@ -235,7 +157,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     case CommonStatusCodes.RESOLUTION_REQUIRED: {
                         try {
                             ResolvableApiException resolvable = (ResolvableApiException) e;
-                            resolvable.startResolutionForResult(MapActivity.this ,REQUEST_CHECK_SETTINGS);
+                            resolvable.startResolutionForResult(UserMapActivity.this ,REQUEST_CHECK_SETTINGS);
                         } catch (IntentSender.SendIntentException sendEx) {
                         }
                         break;
@@ -288,5 +210,4 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         super.onPause();
         stopLocationUpdates();
     }
-
 }
