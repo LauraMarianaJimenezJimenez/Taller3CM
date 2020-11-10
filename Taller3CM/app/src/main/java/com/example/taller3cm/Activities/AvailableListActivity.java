@@ -75,8 +75,5 @@ public class AvailableListActivity extends AppCompatActivity {
 
             }
         });
-
-
-
     }
 }

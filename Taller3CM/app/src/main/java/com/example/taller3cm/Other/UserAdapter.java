@@ -67,6 +67,8 @@ public class UserAdapter extends ArrayAdapter<Usuario> {
             public void onClick(View view) {
                 Intent i = new Intent(rowView.getContext(), UserMapActivity.class);
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                String seguir = values.get(position).getId();
+                i.putExtra("id", seguir);
                 rowView.getContext().startActivity(i);
             }
         });
