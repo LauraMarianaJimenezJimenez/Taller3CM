@@ -2,6 +2,7 @@ package com.example.taller3cm.Other;
 
 public class Usuario {
 
+    String id;
     String nombre;
     String apellido;
     String documento;
@@ -20,7 +21,14 @@ public class Usuario {
         this.longitud = longitud;
         this.latitud = latitud;
         this.disponible = disponible;
-        //this.uriFoto = uriFoto;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public boolean isDisponible() {
