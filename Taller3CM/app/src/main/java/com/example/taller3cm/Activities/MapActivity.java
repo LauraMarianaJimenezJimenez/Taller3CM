@@ -139,10 +139,17 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                         Usuario user = singleSnapshot.getValue(Usuario.class);
                         if(user.getId().equals(mAuth.getUid()))
                         {
+
                             if (user.isDisponible()) {
+                                Log.i("user.getId", user.getId());
+                                Log.i("mAuth.getUid", mAuth.getUid());
                                 user.setDisponible(false);
+                                myRef=database.getReference("users/" + user.getId());
+                                myRef.setValue(user);
                             } else {
                                 user.setDisponible(true);
+                                myRef=database.getReference("users/" + user.getId());
+                                myRef.setValue(user);
                             }
                         }
 

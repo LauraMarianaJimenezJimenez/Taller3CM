@@ -246,7 +246,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                 myRef = database.getReference(USERS + mUser.getUid());
                 myRef.setValue(user);
-                StorageReference myRefStorage = mStorageRef.child(IMAGE + mUser.getUid() + "/ profile.jpg");
+                StorageReference myRefStorage = mStorageRef.child(IMAGE + mUser.getUid() + "/profile.jpeg");
                 myRefStorage.putBytes(convertirImagen()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
@@ -268,7 +268,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private byte[] convertirImagen(){
         ByteArrayOutputStream arregloByte = new ByteArrayOutputStream();
-        image.compress(Bitmap.CompressFormat.PNG,100,arregloByte);
+        image.compress(Bitmap.CompressFormat.JPEG,100,arregloByte);
         return arregloByte.toByteArray();
     }
 
