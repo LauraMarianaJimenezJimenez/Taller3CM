@@ -2,14 +2,17 @@ package com.example.taller3cm.Activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -24,6 +27,22 @@ import com.example.taller3cm.Other.PermissionsManager;
 import com.example.taller3cm.R;
 import com.example.taller3cm.Other.Usuario;
 import com.example.taller3cm.Other.Utils;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.CommonStatusCodes;
+import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -37,28 +56,38 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
+import static com.example.taller3cm.Other.PermissionsManager.REQUEST_CHECK_SETTINGS;
+
 public class RegisterActivity extends AppCompatActivity {
 
     public final String TAG = "Taller Autentiación";
+    public final String IMAGE = "images/";
     public static final String USERS = "users/";
+    private final static int LOCATION_PERMESSION_REQUEST = 1;
     private StorageReference mStorageRef;
     private FirebaseAuth mAuth;
+    private FusedLocationProviderClient mFusedLocationProviderClient;
+    private LocationRequest mLocationRequest;
+    private LocationCallback mLocationCallback;
     FirebaseDatabase database;
     DatabaseReference myRef;
 
     Button btnGaleria, btnCamara, btnRegister;
     ImageView imgFoto;
-    EditText edtEmail, edtPassword, edtNombre, edtApellido, edtDocumento, edtLatitud, edtLongitud;
-
+    EditText edtEmail, edtPassword, edtNombre, edtApellido, edtDocumento;
+    Bitmap image;
+    double latitud, longitud;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+
 
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
@@ -76,10 +105,21 @@ public class RegisterActivity extends AppCompatActivity {
         edtNombre = findViewById(R.id.edtName);
         edtApellido = findViewById(R.id.edtLastName);
         edtDocumento = findViewById(R.id.edtDocumento);
-        edtLatitud = findViewById(R.id.edtLatitud);
-        edtLongitud = findViewById(R.id.edtLongitud);
 
-
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        mLocationRequest = createLocationRequest();
+        mLocationCallback = new LocationCallback(){
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                super.onLocationResult(locationResult);
+                Location my_location = locationResult.getLastLocation();
+                if(my_location!=null) {
+                    latitud = my_location.getLatitude();
+                    longitud = my_location.getLongitude();
+                    Log.i("UBICACION", "Mi latitud es: " + latitud+ "- Mi longitud es: " + longitud);
+                }
+            }
+        };
 
         btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,6 +142,8 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
+        requestPermission(this, Manifest.permission.ACCESS_FINE_LOCATION,"Es necesario para el funcionamiento correcto de la APP.", LOCATION_PERMESSION_REQUEST);
+        usePermition();
 
     }
 
@@ -115,19 +157,11 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void signUp() {
 
-
-        String nombre = this.edtNombre.getText().toString();
-        String apellido = this.edtApellido.getText().toString();
-        String documento = this.edtDocumento.getText().toString();
-        String latitud = this.edtLatitud.getText().toString();
-        String longitud = this.edtLongitud.getText().toString();
         String email = this.edtEmail.getText().toString();
         String password = this.edtPassword.getText().toString();
-        boolean disponible = false;
 
         boolean validEmail = Utils.validateEmail(email);
         boolean validPass = Utils.validatePassword(password);
-        boolean validFields = true;
 
         if (!validEmail) {
             if (email.isEmpty()) {
@@ -146,45 +180,8 @@ public class RegisterActivity extends AppCompatActivity {
 
         }
 
-        if(edtNombre.getText().toString().isEmpty()) {
-            validFields = false;
-            edtNombre.setError("Requerido");
-        }
-        if(edtApellido.getText().toString().isEmpty()) {
-            validFields = false;
-            edtApellido.setError("Requerido");
-        }
-        if(edtEmail.getText().toString().isEmpty()) {
-            validFields = false;
-            edtEmail.setError("Requerido");
-        }
-        if(edtPassword.getText().toString().isEmpty()) {
-            validFields = false;
-            edtPassword.setError("Requerido");
-        }
-        if(edtDocumento.getText().toString().isEmpty()) {
-            validFields = false;
-            edtDocumento.setError("Requerido");
-        }
-        if(edtLatitud.getText().toString().isEmpty()) {
-            validFields = false;
-            edtLatitud.setError("Requerido");
-        }
-        if(edtLongitud.getText().toString().isEmpty()) {
-            validFields = false;
-            edtLongitud.setError("Requerido");
-        }
 
-        if(validFields){
-            Usuario user = new Usuario(nombre, apellido, documento, longitud, latitud, disponible);
-            String key = myRef.push().getKey();
-            myRef=database.getReference(USERS+key);
-            myRef.setValue(user);
-            //uploadFile(key);
-        }
-
-        if (validEmail && validPass && validFields) {
-
+        if (validEmail && validPass) {
             mAuth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                         @Override
@@ -208,15 +205,71 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void updateUI(FirebaseUser mUser) {
         if (mUser != null) {
-            Intent intent = new Intent(getBaseContext(), MapActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-            finish();
+            String nombre = this.edtNombre.getText().toString();
+            String apellido = this.edtApellido.getText().toString();
+            String documento = this.edtDocumento.getText().toString();
+            boolean disponible = false;
+            boolean validFields = true;
+
+
+            if(edtNombre.getText().toString().isEmpty()) {
+                validFields = false;
+                edtNombre.setError("Requerido");
+            }
+            if(edtApellido.getText().toString().isEmpty()) {
+                validFields = false;
+                edtApellido.setError("Requerido");
+            }
+            if(edtEmail.getText().toString().isEmpty()) {
+                validFields = false;
+                edtEmail.setError("Requerido");
+            }
+            if(edtPassword.getText().toString().isEmpty()) {
+                validFields = false;
+                edtPassword.setError("Requerido");
+            }
+            if(edtDocumento.getText().toString().isEmpty()) {
+                validFields = false;
+                edtDocumento.setError("Requerido");
+            }
+
+            if(validFields){
+                Usuario user = new Usuario();
+                user.setNombre(nombre);
+                user.setApellido(apellido);
+                user.setDocumento(documento);
+                user.setDisponible(disponible);
+                user.setId(mUser.getUid());
+                user.setDisponible(disponible);
+                user.setLatitud(latitud);
+                user.setLongitud(longitud);
+
+                myRef = database.getReference(USERS + mUser.getUid());
+                myRef.setValue(user);
+                StorageReference myRefStorage = mStorageRef.child(IMAGE + mUser.getUid() + "/ profile.jpg");
+                myRefStorage.putBytes(convertirImagen()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        Intent intent = new Intent(getBaseContext(), MapActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent);
+                        finish();
+                    }
+                });
+
+            }
+
         } /* else {
             Toast toast = Toast. makeText(getApplicationContext(),"No se pudo registrar",Toast. LENGTH_SHORT);
             toast. setMargin(50,50);
             toast. show();
         } */
+    }
+
+    private byte[] convertirImagen(){
+        ByteArrayOutputStream arregloByte = new ByteArrayOutputStream();
+        image.compress(Bitmap.CompressFormat.PNG,100,arregloByte);
+        return arregloByte.toByteArray();
     }
 
     private void addPhoto()
@@ -244,7 +297,6 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
     }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
@@ -274,6 +326,12 @@ public class RegisterActivity extends AppCompatActivity {
                 }
                 return;
             }
+            case PermissionsManager.LOCATION_PERMISSION:{
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                {
+                    takePicture();
+                }
+            }
         }
     }
 
@@ -286,6 +344,7 @@ public class RegisterActivity extends AppCompatActivity {
                 case PermissionsManager.REQUEST_IMAGE_CAPTURE:
                     Bundle extras = data.getExtras();
                     Bitmap imageBitmap = (Bitmap) extras.get("data");
+                    image = imageBitmap;
                     imgFoto.setImageBitmap(imageBitmap);
                     imgFoto.requestLayout();
                     break;
@@ -294,6 +353,7 @@ public class RegisterActivity extends AppCompatActivity {
                         final Uri imageUri = data.getData();
                         final InputStream imageStream = this.getContentResolver().openInputStream(imageUri);
                         final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
+                        image = selectedImage;
                         imgFoto.setImageBitmap(selectedImage);
                         imgFoto.setScaleType(ImageView.ScaleType.FIT_XY);
                         imgFoto.requestLayout();
@@ -305,23 +365,72 @@ public class RegisterActivity extends AppCompatActivity {
         }
     }
 
-    private void uploadFile(String myRef){
-        Uri file = Uri.fromFile(new File("path/to/images/image.jpg"));
-        StorageReference imageRef = mStorageRef.child( USERS + myRef);
-        imageRef.putFile(file)
-                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-// Get a URL to the uploaded content
-                        Log.i("FBApp", "Succesfully upload image");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception exception) {
-// Handle unsuccessful uploads
-// ...
-                    }
-                });
+    //Permisos
+    private void usePermition() {
+        if(ContextCompat.checkSelfPermission(getBaseContext(),Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED) {
+            checkSettings();
+        }
     }
+
+    private void checkSettings() {
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(mLocationRequest);
+        SettingsClient client =  LocationServices.getSettingsClient(this);
+        Task<LocationSettingsResponse> task = client.checkLocationSettings(builder.build());
+
+        task.addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>() {
+            @Override
+            public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+                startLocationUpdates();
+            }
+        });
+        task.addOnFailureListener(this, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                int statusCode = ((ApiException) e).getStatusCode();
+                switch (statusCode){
+                    case CommonStatusCodes.RESOLUTION_REQUIRED: {
+                        try {
+                            ResolvableApiException resolvable = (ResolvableApiException) e;
+                            resolvable.startResolutionForResult(RegisterActivity.this,REQUEST_CHECK_SETTINGS);
+                        } catch (IntentSender.SendIntentException sendEx) {
+                        }
+                        break;
+                    }
+                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:{
+                        Toast.makeText(getBaseContext(),"No se pudo completar la operación.",Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+        });
+    }
+
+    private void startLocationUpdates() {
+        if(ContextCompat.checkSelfPermission(getBaseContext(),Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED) {
+            mFusedLocationProviderClient.requestLocationUpdates(mLocationRequest,mLocationCallback,null);
+        }
+    }
+
+    protected LocationRequest createLocationRequest() {
+        LocationRequest locationRequest = new LocationRequest();
+        locationRequest.setInterval(70000);
+        locationRequest.setFastestInterval(70000);
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        return locationRequest;
+    }
+
+    private void requestPermission(Activity context, String permiso, String justificacion, int idCode) {
+        if(ContextCompat.checkSelfPermission(context,permiso) != PackageManager.PERMISSION_GRANTED)
+        {
+            if(ActivityCompat.shouldShowRequestPermissionRationale(context, permiso)) {
+                //Show an explanation to user asynchronously
+            }
+            //request permission
+            ActivityCompat.requestPermissions(context,new String[]{permiso},idCode);
+        }
+    }
+
+    private void stopLocationUpdates() {
+        mFusedLocationProviderClient.removeLocationUpdates(mLocationCallback);
+    }
+
 }

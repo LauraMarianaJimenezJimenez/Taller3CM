@@ -5,7 +5,7 @@
     android:layout_height="100dp">
 
     <ImageView
-        android:id="@+id/imgUser"
+        android:id="@+id/imgAdapterUser"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -14,7 +14,7 @@
         app:srcCompat="@drawable/nodisponible" />
 
     <LinearLayout
-        android:layout_width="200dp"
+        android:layout_width="180dp"
         android:layout_height="match_parent"
         android:layout_weight="2"
         android:gravity="center"
@@ -38,9 +38,9 @@
 
     <Button
         android:id="@+id/btnUbicacion"
-        android:layout_width="match_parent"
+        android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical|center_horizontal"
         android:layout_weight="2"
-        android:text="Button" />
+        android:text="Ubicación" />
 </LinearLayout>
