@@ -1,4 +1,5 @@
 package com.example.taller3cm.Activities;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -119,12 +120,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
+
         if(id == R.id.menuLogout) {
             mAuth.signOut();
             Intent intent = new Intent(MapActivity.this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
         }
+
         if(id == R.id.menuDisponible) {
 
         }
@@ -135,7 +138,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         return true;
     }
-
     //Leer locaciones
     public void loadLocations(){
         myRef = database.getReference(PATH_LOCATIONS);
