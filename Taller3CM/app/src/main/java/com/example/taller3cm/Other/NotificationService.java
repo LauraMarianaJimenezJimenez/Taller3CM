@@ -60,9 +60,8 @@ public class NotificationService extends JobIntentService {
                             && changeAux
                             && !usuario.getId().equals(currentUser.getId())){
                         Log.i("MI ID", "Mi id es " + currentUser.getId() );
-                        buildAndShowNotification("Usuario Disponible", "El usuario: "
-                                + usuario.getNombre().concat(usuario.getApellido())
-                                + " se encuentra DISPONIBLE", usuario.getId());
+                        buildAndShowNotification("Usuario Disponible!", usuario.getNombre().concat(" ").concat(usuario.getApellido())
+                                + " ahora está DISPONIBLE.", usuario.getId());
                     }
                 }
             }
