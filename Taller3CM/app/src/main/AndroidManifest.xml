@@ -9,7 +9,7 @@
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-feature
         android:name="android.hardware.camera"
         android:required="true" />
@@ -23,7 +23,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
+        <service
+            android:name=".Other.NotificationService"
+            android:permission = "android.permission.BIND_JOB_SERVICE"></service>
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -38,7 +40,7 @@
 
         <activity
             android:name=".Activities.UserMapActivity"
-            android:label="@string/title_activity_user_map"></activity>
+            android:label="@string/title_activity_user_map" />
         <activity
             android:name=".Activities.MapActivity"
             android:label="@string/title_activity_map" />
