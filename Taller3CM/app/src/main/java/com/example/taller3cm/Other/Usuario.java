@@ -92,4 +92,6 @@ public class Usuario {
     public String getDocumento() {
         return documento;
     }
+
+
 }
