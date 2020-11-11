@@ -39,6 +39,7 @@ public class NotificationService extends JobIntentService {
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
         loadCurrentUser(user);
+        Log.i("ENTRE","Al servicio");
     }
 
     public static void enqueueWork(Context context, Intent intent) {
@@ -57,9 +58,11 @@ public class NotificationService extends JobIntentService {
                     boolean changeAux = validateChanges(usuario);
                     if(mAuth.getCurrentUser() != null
                             && changeAux
-                            && usuario.getId()
-                            != usuario.getId()){
-                        buildAndShowNotification("Usuario Disponible", "El usuario: "+ usuario.getNombre().concat(usuario.getApellido()) + " se encuentra DISPONIBLE", usuario.getId());
+                            && !usuario.getId().equals(currentUser.getId())){
+                        Log.i("MI ID", "Mi id es " + currentUser.getId() );
+                        buildAndShowNotification("Usuario Disponible", "El usuario: "
+                                + usuario.getNombre().concat(usuario.getApellido())
+                                + " se encuentra DISPONIBLE", usuario.getId());
                     }
                 }
             }
@@ -78,10 +81,10 @@ public class NotificationService extends JobIntentService {
         mBuilder.setContentText(message);
         mBuilder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
         Intent intent = new Intent(this, UserMapActivity.class);
-        intent.putExtra("key", userKey);
+        intent.putExtra("idSeguir", userKey);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
                 Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         mBuilder.setContentIntent(pendingIntent);
         mBuilder.setAutoCancel(true);
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
@@ -95,6 +98,7 @@ public class NotificationService extends JobIntentService {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     currentUser = dataSnapshot.getValue(Usuario.class);
+                    currentUser.setId(dataSnapshot.getKey());
                     makeSnapshot();
                 }
                 @Override

@@ -69,7 +69,8 @@ public class UserMapActivity extends FragmentActivity implements OnMapReadyCallb
     FirebaseDatabase database;
     TextView txtDis;
     LatLng ubactual, ubSeguir;
-    String distancia, idSeguir, nameSeguir;
+    String distancia, nameSeguir;
+    String idSeguir = " ";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,10 +79,6 @@ public class UserMapActivity extends FragmentActivity implements OnMapReadyCallb
         setContentView(R.layout.activity_user_map);
         txtDis = findViewById(R.id.txtDis);
         database = FirebaseDatabase.getInstance();
-
-        //Recuperar id a seguir
-        idSeguir = getIntent().getExtras().getString("id");
-        Log.i("RECIBI", "A seguir: " + idSeguir);
 
         //Marcador inicial
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
@@ -95,11 +92,10 @@ public class UserMapActivity extends FragmentActivity implements OnMapReadyCallb
                     mMap.clear();
                     ubactual = new LatLng(my_location.getLatitude(), my_location.getLongitude());
                     mMap.addMarker(new MarkerOptions().position(ubactual).title("Ubicación actual!"));
-                    mMap.moveCamera(CameraUpdateFactory.newLatLng(ubactual));
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ubactual,15));
                 }
             }
         };
-
 
         requestPermission(this, Manifest.permission.ACCESS_FINE_LOCATION,"Es necesario para el funcionamiento correcto de la APP.",LOCATION_PERMESSION_REQUEST);
         usePermition();
@@ -123,27 +119,29 @@ public class UserMapActivity extends FragmentActivity implements OnMapReadyCallb
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for(DataSnapshot single: dataSnapshot.getChildren()){
                     Usuario user = single.getValue(Usuario.class);
-                    if(idSeguir.equals(user.getId())){
+                    user.setId(single.getKey());
+                    idSeguir = getIntent().getStringExtra("idSeguir");
+                    Log.i("LLEGO", "tengo este id " + idSeguir);
+                   if(idSeguir.equals(user.getId())){
                         Log.i("ID seguimiento", user.getId());
                         ubSeguir = new LatLng(user.getLatitud(), user.getLongitud());
                         Log.i("LOAD LOCATION", "Tengo esta ubcacion a seguir: "+ ubSeguir);
                         nameSeguir = user.getNombre().concat(" ").concat(user.getApellido());
                         //Poner marker
                         mMap.clear();
-                        mMap.addMarker(new MarkerOptions().position(ubactual).title("Ubicación actual!"));
+                        if(ubactual != null){
+                            mMap.addMarker(new MarkerOptions().position(ubactual).title("Ubicación actual!"));
+                        }
                         mMap.addMarker(new MarkerOptions().position(ubSeguir).title(nameSeguir));
-                        mMap.moveCamera(CameraUpdateFactory.newLatLng(ubSeguir));
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ubSeguir,15));
                         Log.i("TRACKING MARKER", "Puse marker");
 
                         //Mostrar distancia
                         distancia = String.valueOf(calculateDistance(ubactual.latitude, ubSeguir.latitude, ubactual.longitude, ubSeguir.longitude));
-                        txtDis.setText("Distancia a " +nameSeguir+": " + distancia + " Km");
+                        txtDis.setText("Distancia a " + nameSeguir +": " + distancia + " Km");
                         Log.i("DISTANCIA", "mi distancia al otro usuario es: " + distancia);
-
                     }
-
                 }
-
             }
 
             @Override
@@ -151,6 +149,7 @@ public class UserMapActivity extends FragmentActivity implements OnMapReadyCallb
                 Log.i("DB Realtime", "Error");
             }
         });
+
     }
 
     //Calcular distancia

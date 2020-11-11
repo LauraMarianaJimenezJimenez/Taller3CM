@@ -89,7 +89,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 if(my_location!=null) {
                     ubactual = new LatLng(my_location.getLatitude(), my_location.getLongitude());
                     mMap.addMarker(new MarkerOptions().position(ubactual).title("Ubicación actual: " + geoCoderSearchLatLng(ubactual)));
-                    mMap.moveCamera(CameraUpdateFactory.newLatLng(ubactual));
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ubactual,15));
                 }
             }
         };
@@ -111,7 +111,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();
-
         }
     }
 

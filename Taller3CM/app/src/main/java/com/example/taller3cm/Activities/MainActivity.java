@@ -31,7 +31,6 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     public static final String CHANNEL_ID = "M&L App";
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
